@@ -1,0 +1,70 @@
+> assign new pod to node worker2 via selector env=test in definition file
+
+> check scheduler deployment and how to assign custom scheduler to pod
+
+
+
+
+>> Label node worker1: region general
+
+>> add taint to worker1 node env=dev:NoSchedule
+
+>> create namespace test
+
+>> create cm named cm-test in namespace test with values TEAM=blue
+
+>> create secret named secret-test in manespace test with values PASSWORD=superpass
+
+>> create limitrange in namespace test default cpu 20m mem 50Mi limit cpu 200m  mem 300Mi, min cpu 10m mem 20Mi, max cpu 1 mem 1Gi, type container
+
+>> create resourcequota in namespace test cpu.request 600Mi cpu.limit 1 mem.req 1Gi mem.limit 2Gi
+ 
+>> Create deployment my-app
+   replicas 2
+   label: dev=testapp
+   namespace: test
+   pod:
+     name: frontend
+     image: nginx
+     port: 80
+     resources:
+       cpu.req: 20m
+       cpu.limit: 300m
+       mem.req: 50Mi
+       mem.limit: 300Mi
+     labels:
+       env: dev
+     annotation:
+       project: "prepare cka"
+     add toleration to worker 1 node
+     add affinity to label region: general
+     environment variable: COLOR=green
+     env variable from config map cm-test: TEAM=blue
+     env from secret secret-test: PASSWORD=superpass
+   second pod:
+     name: sleeper
+     image: busybox
+     command: sleep
+     arguments: 3000
+   init container:
+     name: app-init
+     image: busybox
+     command: sleep
+     arguments: 30
+
+>> cretate node port service to access frontend pod
+
+>> scale deployment to 3 replicas
+   
+>> check in what directory static pod is creted and create static pod on worker1 with nginx image
+
+>> create daemonset from deployment yaml
+
+>> check worker1 node taints
+
+>> list pods with label dev=testapp in all namespaces
+
+
+
+
+>> install metrics server and check for node and pods metrics

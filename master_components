@@ -1,0 +1,15 @@
+### cluster installed with kubeadm manifest for api location
+/etc/kubernetes/manifests/kube-apiserver.yaml
+
+### manually installed cluster api service
+/etc/systemd/system/kube-apiserver.service
+
+### api server process options on master node
+ps -aux | grep kube-apiserver
+
+### cluster installed with kubeadm manifest for controller manifest
+/etc/kubernetes/manifests/kube-controller-manager.yaml
+
+### cluster installed with kubeadm manifest for scheduler manifest
+/etc/kubernetes/manifests/kube-scheduler.yaml
+

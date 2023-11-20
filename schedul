@@ -1,0 +1,116 @@
+### manually assign pod to node
+set nodeName: <nodename> in pod.spec
+
+### use selector to get pod by label
+kubectl get po --selector app=App1
+
+### annotations used for info only purpose
+metadata.annotations
+
+### selectors and labels in definitions
+in rs and svc definition files spec.selector.matchLabels should have common label with pods label
+
+### apply taint on node
+kubectl taint nodes node-name key=value:taint-effect
+
+taint-effect:
+NoSchedule
+PreferNoSchedule
+NoExecute
+
+### add tolerations to pod definition
+
+spec:
+  tolerations:
+  - key: "<taint key>"
+    operator: "Equal"
+    value: "<taint key value>"
+    effect: "<taint effect>"
+
+### to check node taints
+kubectl describe node <nodename> | grep -i taint
+
+### assign pod to node in pod definition file
+spec:
+  nodeSelector:
+    size: Large <---- label on node
+
+### to label node
+kubectl label nodes <node name> <label-key>=<label-value>
+
+### configure affinity in pod definition file
+# operators In, NotIn, Exists, DoesNotExist
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: topology.kubernetes.io/zone
+            operator: In
+            values:
+            - antarctica-east1
+            - antarctica-west1
+
+### taints and tolerations could be used together to restrict other pods to land on node
+# taints and tolerations does not guarantee pod will not be deployed on other nodes
+
+### resources request and limit
+spec:
+  containers:
+  - resources:
+      requests:
+        memory: "4Gi"
+        cpu: 2
+      limits:
+        memory: "8Gi"
+        cpu: 4
+      
+### set limitrange per container in namespace
+kind: LimitRange
+spec:
+  limits:
+  - default:
+      cpu: 500m
+      memory: 1Gi
+    defaultRequest:
+      cpu: 500m
+      memory: 1Gi
+    max:
+      cpu: "1"
+      memory: 1Gi
+    min:
+      cpu: 100m
+      memory: 500Mi
+    type: Container
+
+### set quota per namespace
+kind: ResourceQuota
+spec:
+  hard:
+    requests.cpu: 4
+    requests.memory: 4Gi
+    limits.cpu: 10
+    limits.memory: 10Gi
+
+### DaemonSet definition file is same as ReplicaSet, only kind differs
+
+### to create static pod on standalone server with bubelet
+Place pod definition file to /etc/kubernetes/manifests
+It's defined in kubelet service as --pod-manifest-path=/etc/kubernetes/manifests or --config=file.yaml and in file.yaml look for staticPodPath
+
+### to specify different scheduler in pod definition file
+spec:
+  schedulerName: my-custom-schedul
+
+### to view events 
+kubectl get events -o wide
+
+### scheduler profiles
+in pod definition
+spec:
+  priorityClassName: high-priority  <--- first priorityclass need to be created
+
+scheduler first ad pod to "scheduling queue" then "filter" and then "score" and then "bind" to deploy pod
+filter is to filter nodes that can run pod
+score nodes based on free resources

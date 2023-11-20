@@ -1,0 +1,83 @@
+### to view status of deployment rollout
+kubectl rollout status deployment <deploy name>
+
+kubectl rollout history deployment <deploy name> <-- to view history
+
+kubectl rollout undo deploymen <deploy name> <-- to rollback deployment
+
+kubectl set image deployment <deploy name> <container name>=<image name>
+
+# in pod manifest
+spec:
+ strategy:
+   type: RollingUpdate
+   rollingUpdate:
+     maxUnavailable: 1
+
+# to set argument for container in pod definition
+spec:
+  containers:
+    - name: ubuntu-sleeper
+      image: ubuntu-sleeper
+      command: ["sleeper2.0"] <--- overrides ENTRYPOINT in image
+      args: ["10"]  <----- overrides CMD in image
+
+# ENV's to container
+spec:
+  containers:
+    - env:
+        - name: APP_COLOR
+          value: ping
+        - name: APP_COLOR
+          valueFrom:
+            configMapKeyRef:
+              name: <configmap name>
+              key: APP_COLOR
+        - name: APP_COLOR
+          valueFrom:
+            secretKeyRef:
+
+# create configmap
+kubectl create configmap <configmap name> --from-literal=<key>=<value>
+kubectl create configmap <configmap name> --from-file=<file name> <---- to create configmap from file
+
+spec:
+  containers:
+  - envFrom:
+      - configMapRef:
+          name: <configmap name>
+
+# to create a secret
+kubectl create secret generic <secret name> --from-literal=<secret key>=<secret value>
+kubectl create secret generic <secret name> --from-file=<file name> 
+# secret values must be provided in encoded format
+
+# inject secret to pod
+spec:
+  containers:
+  - envFrom:
+    - secretRef:
+        name: <secret name>
+  env:
+  - name: DB_Password
+    valueFrom:
+      secretKeyRef:
+        name: <secret name>
+        key: <key in secret>
+        
+# Multicontainer pods
+
+# init container
+spec:
+  containers:
+  - name: myapp-container
+    image: busybox:1.28
+    command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+  initContainers:
+  - name: init-myservice
+    image: busybox
+    command: ['sh', '-c', 'git clone <some-repository-that-will-be-used-by-application> ; done;']
+
+
+
+

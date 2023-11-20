@@ -1,0 +1,11 @@
+# Metrics from node provided by kubelet addon cAdvisor
+
+# Need to install metrics-server to get metrics stored in memory
+
+### To view node and pod metrics
+kubectl top niode
+kubectl top pods
+
+### to view logs
+kubectl logs -f <pod name>
+
