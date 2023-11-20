@@ -1,8 +1,3 @@
-> assign new pod to node worker2 via selector env=test in definition file
-
-> check scheduler deployment and how to assign custom scheduler to pod
-
-
 
 
 >> Label node worker1: region general
@@ -51,10 +46,22 @@
      image: busybox
      command: sleep
      arguments: 30
+   strategy:
+     type: rollingUpdate
+     rollingUpdate:
+       maxUnavailable: 1
 
 >> cretate node port service to access frontend pod
 
 >> scale deployment to 3 replicas
+
+>> set deployment new image nginx:1.8
+
+>> check rollout status
+
+>> view rollout history
+
+>> rollback deployment
    
 >> check in what directory static pod is creted and create static pod on worker1 with nginx image
 
@@ -65,6 +72,12 @@
 >> list pods with label dev=testapp in all namespaces
 
 
+>> label worker2 node env=prod
 
+>> create new pod to node worker2 via selector env=prod in definition file
 
 >> install metrics server and check for node and pods metrics
+
+
+
+>> check scheduler deployment and how to assign custom scheduler to pod

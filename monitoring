@@ -3,7 +3,7 @@
 # Need to install metrics-server to get metrics stored in memory
 
 ### To view node and pod metrics
-kubectl top niode
+kubectl top node
 kubectl top pods
 
 ### to view logs
