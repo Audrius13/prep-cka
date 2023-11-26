@@ -1,0 +1,25 @@
+### Kubelet timeout wait by controller manager is 5 min by default
+kube-controller-manager --pod-eviction-timeout=5m0s
+
+#### upgrade of kubernetes cluster
+# kubeapi could be one version higher than other control plane components, but not via versa 
+# kubelet and kube-proxy could be 2 versions lower
+
+# master node
+apt-get install -y kubeadm=1.12.0-00
+kubeadm upgrade plan
+kubeadm upgrade apply v1.12.0
+drain node
+apt-get install -y kubelet=1.12.0-00
+daemon reload
+systemctl restart kubelet
+uncordon
+
+# workers
+drain node
+apt-get install -y kubeadm=1.12.0-00
+apt-get install -y kubelet=1.12.0-00
+kubeadm upgrade node
+daemon reload 
+systemctl restart kubelet
+uncordon node
