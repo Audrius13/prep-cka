@@ -23,3 +23,14 @@ kubeadm upgrade node
 daemon reload 
 systemctl restart kubelet
 uncordon node
+
+# backup ETCD
+ETCDCTL_API=3 etcdctl snapshot save snapshot.db <-- to take snapshot
+ETCDCTL_API=3 etcdctl snapshot status snapshot.db <-- to view snapshot
+
+stop kube-api server
+ETCDCTL_API=3 etcdctl snapshot restore snapshot.db --data-dir /var/lib/etcd-from-backup <-- snapshot.db is backup file and data-dir where to restore
+reload daemon and restart etcd service
+start kube-apie service
+
+export ETCDCTL_API=3
