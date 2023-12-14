@@ -1,0 +1,64 @@
+### basic auth file
+create csv file like:
+password123,user1,u0001,group1
+password321,user2,u0002,group2
+add line to kube-api.service amd reboot kubeapi
+--basic-auth-file=user-dtails.csv
+
+### static token file
+bhsjhdbvjhsdbvjhvbshdsbvjhbsdhvbhjsbv,user10,u0010,group1
+--token-auth-file=user-token-details.csv
+
+### generate certificate for user
+openssl genrsa -out user.key 2048
+openssl req -new -key user.key -subj "/CN=user" -out user.csr
+# admin create CertificateSigningRequest definition
+kubectl get csr <-- to see requests
+kubectl certificate approve user <- to approve request
+kubectl get csr user -o yaml <- in status we see generated certificate
+
+### to view kubeconfig file
+kubectl config view
+
+# to view kubeconfig not in default dir
+kubectl config view --kubeconfig=cusomfile
+
+# to change current context
+kubectl config use-context user@cluster
+
+# to access api via curl
+curl localhost:6443 -k --key admin.key --cert admin.crt --cacert ca.crt
+# or kubectl proxy
+
+# to change auth mode in api definition
+--authorization-mode=Node,RBAC,Webhook
+
+# to check if user has authorization to run command
+kubectl auth can-i create deployments
+kubectl auth can-i delete nodes --as <username>
+
+# to create role and rolebinding we can use kubectl
+kubectl create role
+kubectl create rolebinding
+
+# to list namespaced and not namespaced api resources
+kubectl api-resources --namespaced=true
+kubectl api0resources --namespaced=false
+
+# same as roles and rolebindings could be created clusterroles and clusterrolebindings too
+
+# to create service accout
+kubectl create sa <name>
+kubectl get sa
+
+# to create token for sa
+kubectl create token <sa-name>
+
+# to associate secret with sa in secret metadata.annotations add line (to create non expiring token)
+kubernetes.io/service-account.name: <sa-name>
+
+# to create image pull secret
+kubectl create secret docker-registry regcred --docker-server= --docker-username= --docker-password= --docker-email=
+# specify in deploy spec.containers.
+imagePullSecrets:
+  - name: regcred
