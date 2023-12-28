@@ -62,3 +62,53 @@ kubectl create secret docker-registry regcred --docker-server= --docker-username
 # specify in deploy spec.containers.
 imagePullSecrets:
   - name: regcred
+
+# to set security context on pod (or under container)
+kind: Pod
+spec:
+  securityContext:
+    runAsUser: 1000
+
+containers:
+- securityContext:
+    runAsUser: 1000
+    capabilities:
+      add: ["MAC_ADMIN"]
+
+# network policy
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-policy
+spec:
+  podSelector:
+    matchLabels:
+      role: db
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          name: api-pod
+    ports:
+    - protocol: TCP
+      port: 3306
+
+# to allow all pods from different namespace access pod
+ingress:
+- form:
+  - namespaceSelector:
+      matchLabels:
+        name: prod
+
+# to allow traffic from specific IP ranges
+ingress:
+- from:
+  - ipBlock:
+      cidr: 192.168.5.10/32
+
+
+# to investigate
+kubens
+kubectx
