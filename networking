@@ -38,3 +38,11 @@ iptables -t nat -A POSTROUTING -s 192.168.15.0/24 -j MASQUERADE
 
 # outside host to reach netnamespace
 iptables -t nat -A PREROUTING --dport 80 --to-destination 192.168.15.1:80 -j DNAT
+
+# cini config/binaries
+/etc/cni/
+/opt/cni
+/var/lib/cni
+
+# find iptables service
+iptables -L -t nat | grep <service name>
